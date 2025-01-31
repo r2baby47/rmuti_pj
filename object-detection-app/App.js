@@ -5,21 +5,19 @@ import * as ImagePicker from 'expo-image-picker';
 export default function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [result, setResult] = useState('');
-  const [loading, setLoading] = useState(false); // เพื่อแสดง loading ขณะรอผลลัพธ์
+  const [loading, setLoading] = useState(false);
 
   const pickImage = async () => {
-    // ขอสิทธิ์เข้าถึงคลังภาพ
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
       alert('ขออภัย! ต้องมีสิทธิ์เข้าถึงคลังภาพ');
       return;
     }
 
-    // เลือกรูปภาพจากอุปกรณ์
     let pickerResult = await ImagePicker.launchImageLibraryAsync();
     if (!pickerResult.canceled) {
       setSelectedImage(pickerResult.assets[0].uri);
-      setLoading(true); // ตั้งค่าให้แสดง loading เมื่อเริ่มอัปโหลด
+      setLoading(true);
       uploadImage(pickerResult.assets[0]);
     }
   };
@@ -38,26 +36,27 @@ export default function App() {
         body: formData,
       });
       let json = await response.json();
-      console.log('Response JSON:', json); // ดูผลลัพธ์ที่ได้จากเซิร์ฟเวอร์
-
       setLoading(false);
 
-      // แสดงผลลัพธ์ในรูปแบบที่อ่านง่าย
       if (json.detections && json.detections.length > 0) {
         let output = json.detections.map(
-          (item, index) =>
-            `วัตถุที่คือ: ${item.label}, ความมั่นใจ: ${(item.confidence * 100).toFixed(2)}%`
+          (item) => (
+            <View key={item.label_en} style={styles.resultContainer}>
+              <Text style={styles.result}>{`ภาษาอังกฤษ : ${item.label_en}`}</Text>
+              <Text style={styles.result}>{`ภาษาไทย :  ${item.label_th}`}</Text>
+            </View>
+          )
         );
-        setResult(output.join('\n')); // แสดงผลหลายวัตถุในรูปแบบข้อความ
+        setResult(output); // ใช้ JSX เพื่อแสดงผล
       } else if (json.message) {
-        setResult(json.message); // กรณีไม่พบวัตถุ
+        setResult(json.message);
       } else {
         setResult('รูปแบบข้อมูลไม่ถูกต้อง');
       }
     } catch (error) {
       console.error(error);
       setResult('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
-      setLoading(false); // หยุดการโหลดในกรณีที่มีข้อผิดพลาด
+      setLoading(false);
     }
   };
 
@@ -69,7 +68,7 @@ export default function App() {
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <Text style={styles.result}>{result}</Text>
+        <View style={styles.resultContainer}>{result}</View>
       )}
     </View>
   );
@@ -92,10 +91,15 @@ const styles = StyleSheet.create({
     height: 300,
     marginVertical: 20,
   },
+  resultContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
   result: {
     fontSize: 16,
     color: 'blue',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 5,
   },
 });
