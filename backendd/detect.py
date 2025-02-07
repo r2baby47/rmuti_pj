@@ -3,6 +3,7 @@ from googletrans import Translator
 from PIL import Image
 import torch
 import json
+import os
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -45,15 +46,22 @@ def detect():
 
         if not detections:
             return jsonify({'message': 'ไม่พบวัตถุใดๆ ในภาพ', 'detections': []}), 200
+        
+        # เลือกผลลัพธ์ที่มีความมั่นใจสูงสุด
+        highest_confidence_detection = max(detections, key=lambda x: x['confidence'])
 
-        return jsonify({'message': 'ตรวจจับสำเร็จ', 'detections': detections}), 200
+        return jsonify({
+            'message': 'ตรวจจับสำเร็จ',
+            'detections': [highest_confidence_detection]
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 # โหลดพจนานุกรมจากไฟล์ JSON
 translator = Translator()
-with open('custom_dict.json', 'r', encoding='utf-8') as file:
+custom_dict_path = os.path.join(os.path.dirname(__file__), 'custom_dict.json')  # ใช้ path แบบเต็ม
+with open(custom_dict_path, 'r', encoding='utf-8') as file:
     custom_dict = json.load(file)
 
 def translate_label(label):
