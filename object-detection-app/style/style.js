@@ -12,10 +12,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
   },
+  imageContainer: {
+    width: '90%', // ความกว้างของกรอบรูป
+    height: 300,  // ความสูงของกรอบ
+    borderWidth: 2,   // กรอบรูป
+    borderColor: 'gray',  // สีกรอบ
+    borderRadius: 10,     // มุมโค้งมน
+    overflow: 'hidden',   // รูปภาพไม่ให้เกินกรอบ
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   image: {
-    width: 300,
-    height: 300,
-    marginVertical: 20,
+    width: '100%',       // ให้รูปภาพขยายเต็มกรอบ
+    height: '100%',      // ให้รูปภาพขยายเต็มกรอบ
+    resizeMode: 'contain',  // ไม่ให้รูปขยายจนผิดเพี้ยน
   },
   resultContainer: {
     alignItems: 'center',
@@ -25,13 +35,9 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 16,
     color: 'black',
-    textAlign: 'center',  // ทำให้ข้อความอยู่ซ้ายสุด
-    marginVertical: 5,  // ให้มีระยะห่างระหว่างบรรทัด
+    textAlign: 'center',  // ทำให้ข้อความอยู่กลาง
+    marginVertical: 5,  // ระยะห่างระหว่างบรรทัด
   },
-  resultContainer: {
-    marginBottom: 10, // เพิ่มระยะห่างระหว่างผลลัพธ์แต่ละอัน
-  },
-  // เพิ่มการจัดเรียงปุ่มให้อยู่ในแนวนอนและทำให้ปุ่มมีสีแดง
   buttonContainer: {
     flexDirection: 'row',  // จัดปุ่มในแนวนอน
     justifyContent: 'space-around', // กระจายปุ่ม
@@ -51,7 +57,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     textAlign: 'center',
-  }
+  },
 });
 
 export default styles;

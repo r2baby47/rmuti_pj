@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Text, View, Image, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
-import * as MediaLibrary from 'expo-media-library'; // ✅ ใช้ MediaLibrary ขอ permission
+import * as MediaLibrary from 'expo-media-library';
 import styles from './style/style.js';
 import { uploadImage, pickImage, takePhoto } from './utils/imageFunctions.js';
+import { speakEnglish,speakThai } from './utils/sound_Function.js';  // ✅ นำเข้าฟังก์ชันออกเสียง
 
 export default function App() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // ขอสิทธิ์เข้าถึง Media Library
-  // useEffect(() => {
-  //   (async () => {
-  //     const { status } = await MediaLibrary.requestPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       Alert.alert("ต้องอนุญาตการเข้าถึงคลังภาพเพื่อเลือกไฟล์!");
-  //     }
-  //   })();
-  // }, []);
-
-  // ฟังก์ชันที่เกี่ยวข้องกับการเลือกหรือถ่ายภาพ
   const handlePickImage = async () => {
     const pickerResult = await pickImage();
     if (!pickerResult.canceled) {
@@ -42,7 +32,6 @@ export default function App() {
     <View style={styles.container}>
       <Text style={styles.title}>ตรวจจับวัตถุ</Text>
 
-      {/* ปุ่มจัดเรียงแนวนอน */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={handlePickImage}>
           <Text style={styles.buttonText}>เลือกภาพ</Text>
@@ -51,24 +40,34 @@ export default function App() {
           <Text style={styles.buttonText}>ถ่ายภาพ</Text>
         </TouchableOpacity>
       </View>
+      {selectedImage && (
+  <View style={styles.imageContainer}>
+    <Image source={{ uri: selectedImage }} style={styles.image} />
+  </View>
+)}
 
-      {selectedImage && <Image source={{ uri: selectedImage }} style={styles.image} />}
+
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <View style={styles.resultContainer}>
-          {Array.isArray(result) ? (
-            result.map((item, index) => (
-              <Text key={index} style={styles.result}>
-                {item}
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.result}>{result}</Text>
-          )}
-        </View>
-      )}
+        result && result.en && result.th && (
+          
+    <View style={styles.resultContainer}>
+      <Text style={styles.result}>ภาษาอังกฤษ: {result.en}</Text>
+      <Text style={styles.result}>ภาษาไทย: {result.th}</Text>
+
+      <TouchableOpacity onPress={() => speakEnglish(result.en)}>
+        <Text style={styles.speakButton}>🔊 ฟังเสียงภาษาอังกฤษ</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => speakThai(result.th)}>
+        <Text style={styles.speakButton}>🔊 ฟังเสียงภาษาไทย</Text>
+      </TouchableOpacity>
+    </View>
+  )
+)}
+
     </View>
   );
 }

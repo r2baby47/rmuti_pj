@@ -1,12 +1,13 @@
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library'; 
-import { Text, View} from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
+import * as Speech from 'expo-speech'; // ✅ เพิ่มฟังก์ชันออกเสียง
+import { Text, View, TouchableOpacity } from 'react-native';
 import styles from '../style/style.js';
 
 // ฟังก์ชันสำหรับเลือกภาพจากคลัง
 export const pickImage = async () => {
   let pickerResult = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.Images,
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
     quality: 1,
   });
@@ -22,7 +23,9 @@ export const takePhoto = async () => {
   return cameraResult;
 };
 
-// ฟังก์ชันสำหรับอัปโหลดภาพไปยังเซิร์ฟเวอร์
+
+
+// ฟังก์ชันอัปโหลดภาพและรับผลลัพธ์
 export const uploadImage = async (image, setLoading, setResult) => {
   let formData = new FormData();
   formData.append('file', {
@@ -39,27 +42,20 @@ export const uploadImage = async (image, setLoading, setResult) => {
     let json = await response.json();
     setLoading(false);
 
+    console.log('API Response:', json); // ✅ ตรวจสอบค่าที่ได้จาก API
+
     if (json.detections && json.detections.length > 0) {
-      let output = json.detections.map((item) => (
-        <View key={item.label_en} style={styles.resultContainer}>
-          {/* ห่อข้อความทั้งสองด้วย <View> */}
-          <Text style={styles.resultText}>
-            ภาษาอังกฤษ: {item.label_en}
-          </Text>
-          <Text style={styles.resultText}>
-            ภาษาไทย: {item.label_th}
-          </Text>
-        </View>
-      ));
-      setResult(output);  // ส่งผลลัพธ์เป็น array ของ <Text> components
+      let detectedLabel_en = json.detections[0].label_en;
+      let detectedLabel_th = json.detections[0].label_th; // เอาคำศัพท์ทั้ง 2 ภาษา
+      setResult({ en: detectedLabel_en, th: detectedLabel_th }); // ส่งผลลัพธ์เป็น Object
     } else if (json.message) {
-      setResult([<Text key="message" style={styles.resultText}>{json.message}</Text>]);  // ส่งข้อความใน array
+      setResult({ en: json.message, th: "" });
     } else {
-      setResult([<Text key="error" style={styles.resultText}>รูปแบบข้อมูลไม่ถูกต้อง</Text>]);
+      setResult({ en: "รูปแบบข้อมูลไม่ถูกต้อง", th: "" });
     }
   } catch (error) {
     console.error(error);
-    setResult([<Text key="error" style={styles.resultText}>เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์</Text>]);
+    setResult({ en: "เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์", th: "" });
     setLoading(false);
   }
 };
