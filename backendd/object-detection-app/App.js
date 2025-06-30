@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, Image, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import * as MediaLibrary from 'expo-media-library';
 import styles from './style/style.js';
 import { uploadImage, pickImage, takePhoto } from './utils/imageFunctions.js';
 import { speakEnglish,speakThai } from './utils/sound_Function.js';  // ✅ นำเข้าฟังก์ชันออกเสียง
@@ -26,6 +27,7 @@ export default function App() {
       uploadImage(cameraResult.assets[0], setLoading, setResult);
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>ตรวจจับวัตถุ</Text>

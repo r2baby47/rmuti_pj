@@ -1,18 +1,17 @@
 from flask import Flask, request, jsonify
-import traceback  
 from googletrans import Translator
 from PIL import Image
 import torch
 import json
 import os
 from flask_cors import CORS
-from ultralytics import YOLO
+
 app = Flask(__name__)
 CORS(app)
 
 # โหลดโมเดล YOLOv5
 print("Loading YOLO model...")
-model = YOLO ('best.pt')  
+model = torch.hub.load('ultralytics/yolov5', 'yolov5m')  
 
 print("Model loaded successfully!")
 
@@ -29,17 +28,18 @@ def detect():
         img = Image.open(file.stream).convert('RGB')
 
         results = model(img)
-        result = results[0]  # ✅ แก้ตรงนี้
 
         detections = []
-        for box in result.boxes.data.tolist():
-            x_min, y_min, x_max, y_max, confidence, class_id = box
-            label_en = result.names[int(class_id)]
+        for obj in results.xyxy[0].tolist():
+            x_min, y_min, x_max, y_max, confidence, class_id = obj
+            label_en = results.names[int(class_id)]
+
+            # แปลชื่อวัตถุเป็นไทย
             label_th = translate_label(label_en)
 
             detections.append({
-                'label_en': label_en,
-                'label_th': label_th,
+                'label_en': label_en,   # ชื่อวัตถุภาษาอังกฤษ
+                'label_th': label_th,   # ชื่อวัตถุภาษาไทย
                 'confidence': round(confidence, 2),
                 'bbox': [x_min, y_min, x_max, y_max]
             })
@@ -47,6 +47,7 @@ def detect():
         if not detections:
             return jsonify({'message': 'ไม่พบวัตถุใดๆ ในภาพ', 'detections': []}), 200
         
+        # เลือกผลลัพธ์ที่มีความมั่นใจสูงสุด
         highest_confidence_detection = max(detections, key=lambda x: x['confidence'])
 
         return jsonify({
@@ -55,10 +56,7 @@ def detect():
         }), 200
 
     except Exception as e:
-        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
-
-
 
 # โหลดพจนานุกรมจากไฟล์ JSON
 translator = Translator()
