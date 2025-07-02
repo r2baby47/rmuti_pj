@@ -1,4 +1,8 @@
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
+import * as Speech from 'expo-speech'; // ✅ เพิ่มฟังก์ชันออกเสียง
+import { Text, View, TouchableOpacity } from 'react-native';
+import styles from '../style/style.js';
 
 // ฟังก์ชันสำหรับเลือกภาพจากคลัง
 export const pickImage = async () => {
@@ -31,7 +35,7 @@ export const uploadImage = async (image, setLoading, setResult) => {
   });
 
   try {
-    let response = await fetch('http://192.168.85.144:5000/detect', {//http://192.168.0.33:5000/detect
+    let response = await fetch('http:/192.168.85.144:5000/detect', {
       method: 'POST',
       body: formData,
     });

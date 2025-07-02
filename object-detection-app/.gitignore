@@ -34,12 +34,3 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
-venv/
-__pycache__/
-*.pyc
-*.pyd
-*.dll
-*.lib
-*.so
-*.log
-.DS_Store

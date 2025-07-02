@@ -29,7 +29,7 @@ def detect():
         img = Image.open(file.stream).convert('RGB')
 
         results = model(img)
-        result = results[0]  # ✅ แก้ตรงนี้
+        result = results[0]  
 
         detections = []
         for box in result.boxes.data.tolist():
