@@ -2,11 +2,15 @@
   "expo": {
     "name": "object-detection-app",
     "slug": "object-detection-app",
+    "extra": {
+      "OPENAI_API_KEY": "process.env.OPENAI_API_KEY"
+    },
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    
     "splash": {
       "image": "./assets/icon.jpg",
       "resizeMode": "contain",
@@ -33,3 +37,4 @@
     }
   }
 }
+

@@ -7,15 +7,14 @@ import json
 import os
 from flask_cors import CORS
 from ultralytics import YOLO
+import requests
+import whisper
+import shutil
+print(shutil.which("ffmpeg"))
 app = Flask(__name__)
 CORS(app)
-
-# โหลดโมเดล YOLOv5
-print("Loading YOLO model...")
 model = YOLO ('best.pt')  
-
-print("Model loaded successfully!")
-
+whisper_model = whisper.load_model("base")
 @app.route('/detect', methods=['POST'])
 def detect():
     try:
@@ -60,18 +59,24 @@ def detect():
 
 
 
-# โหลดพจนานุกรมจากไฟล์ JSON
 translator = Translator()
-custom_dict_path = os.path.join(os.path.dirname(__file__), 'custom_dict.json')  # ใช้ path แบบเต็ม
+custom_dict_path = os.path.join(os.path.dirname(__file__), 'custom_dict.json')
 with open(custom_dict_path, 'r', encoding='utf-8') as file:
     custom_dict = json.load(file)
 
 def translate_label(label):
-    # ถ้ามีคำนี้ในพจนานุกรม ให้ใช้คำที่กำหนดไว้
+   
     if label in custom_dict:
         return custom_dict[label]
-    # ถ้าไม่มีในพจนานุกรม ให้ใช้ googletrans แปลปกติ
     return translator.translate(label, src='en', dest='th').text
 
+
+@app.route("/transcribe", methods=["POST"])
+def transcribe():
+    audio = request.files["audio"]
+    audio.save("temp_audio.m4a")
+    result = whisper_model.transcribe("temp_audio.m4a")
+    return jsonify({"text": result["text"]})
+    
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
