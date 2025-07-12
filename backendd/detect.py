@@ -7,7 +7,6 @@ import json
 import os
 from flask_cors import CORS
 from ultralytics import YOLO
-import requests
 import whisper
 import shutil
 print(shutil.which("ffmpeg"))
